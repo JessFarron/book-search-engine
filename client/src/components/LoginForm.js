@@ -10,6 +10,8 @@ const LoginForm = () => {
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
+  const [login, { error }] = useMutation(LOGIN_USER);
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
@@ -25,7 +27,7 @@ const LoginForm = () => {
       event.stopPropagation();
     }
 
-    try {
+/*     try {
       const response = await loginUser(userFormData);
 
       if (!response.ok) {
@@ -37,6 +39,18 @@ const LoginForm = () => {
       Auth.login(token);
     } catch (err) {
       console.error(err);
+      setShowAlert(true);
+    } */
+    try {
+      const { data } = await login({
+        variables: { ...userFormData },
+      });
+
+      // Store the token in local storage
+      Auth.login(data.login.token);
+      console.log(data);
+    } catch (e) {
+      console.error(e);
       setShowAlert(true);
     }
 
@@ -84,6 +98,7 @@ const LoginForm = () => {
           variant='success'>
           Submit
         </Button>
+        {error && <div>Login failed</div>}
       </Form>
     </>
   );
